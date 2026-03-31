@@ -1,0 +1,168 @@
+:root {
+    --br-yellow: #FEDD00;
+    --br-green: #009B3A;
+    --br-blue: #002776;
+    --health-red: #ff4d4d;
+    --health-green: #00ff00;
+    --font-arcade: 'Press Start 2P', cursive;
+    --font-heading: 'Bungee', cursive;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000;
+    color: white;
+    font-family: var(--font-arcade);
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    max-width: 1280px;
+    max-height: 720px;
+    border: 4px solid var(--br-yellow);
+    box-shadow: 0 0 20px var(--br-green);
+    overflow: hidden;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    background: #001; /* Fallback */
+}
+
+#ui-overlay {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-columns: 1fr 100px 1fr;
+    padding: 0 40px;
+    z-index: 10;
+}
+
+.health-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.health-bar-container {
+    height: 30px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 3px solid white;
+    position: relative;
+}
+
+.health-section.player-2 .health-bar-container {
+    transform: scaleX(-1);
+}
+
+.health-bar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to bottom, #00ff00, #006400);
+    transition: width 0.3s ease-out;
+}
+
+.character-name {
+    margin-top: 5px;
+    font-size: 14px;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.health-section.player-2 {
+    align-items: flex-end;
+}
+
+#timer {
+    text-align: center;
+    font-size: 36px;
+    background: rgba(0,0,0,0.8);
+    border: 3px solid var(--br-yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    color: var(--br-yellow);
+}
+
+#start-screen {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    text-align: center;
+}
+
+#start-screen h1 {
+    font-family: var(--font-heading);
+    font-size: 80px;
+    color: var(--br-yellow);
+    text-shadow: 4px 4px 0 var(--br-green), 8px 8px 0 var(--br-blue);
+    margin-bottom: 20px;
+}
+
+#start-screen h2 {
+    font-size: 24px;
+    color: white;
+    margin-bottom: 50px;
+}
+
+#start-screen p {
+    animation: blink 0.8s infinite;
+}
+
+.controls-hint {
+    margin-top: 60px;
+    font-size: 12px;
+    color: #ddd;
+    line-height: 1.8;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+#status-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-heading);
+    font-size: 100px;
+    color: gold;
+    text-shadow: 6px 6px black, -4px -4px #ff00ea;
+    pointer-events: none;
+    z-index: 15;
+    animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceIn {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    80% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.ko-text {
+    color: #ff0000;
+    text-shadow: 4px 4px 0 #000;
+}
+

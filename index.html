@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Fighter: Brazil Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Overlay UI -->
+        <div id="ui-overlay">
+            <div class="health-section player-1">
+                <div class="health-bar-container">
+                    <div id="p1-health" class="health-bar"></div>
+                </div>
+                <div class="character-name">CANARINHO</div>
+            </div>
+            
+            <div id="timer">99</div>
+            
+            <div class="health-section player-2">
+                <div class="health-bar-container">
+                    <div id="p2-health" class="health-bar"></div>
+                </div>
+                <div class="character-name">CAPIVARA</div>
+            </div>
+        </div>
+
+        <canvas id="game-canvas"></canvas>
+
+        <div id="status-display"></div>
+        
+        <div id="start-screen">
+            <h1>MEME FIGHTER</h1>
+            <h2>BRAZIL EDITION</h2>
+            <p>Pressione ESPAÇO para Iniciar</p>
+            <div class="controls-hint">
+                <div>P1: WASD + F (Soco) / G (ESPECIAL)</div>
+                <div>P2: Setas + J (Soco) / K (ESPECIAL)</div>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
