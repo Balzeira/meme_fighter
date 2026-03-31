@@ -111,29 +111,95 @@ canvas {
     text-align: center;
 }
 
-#start-screen h1 {
+#start-screen h1.glitter-text {
     font-family: var(--font-heading);
     font-size: 80px;
     color: var(--br-yellow);
-    text-shadow: 4px 4px 0 var(--br-green), 8px 8px 0 var(--br-blue);
+    text-shadow: 4px 4px 0 var(--br-green), 0 0 20px var(--br-yellow);
     margin-bottom: 20px;
+    animation: flow 2s linear infinite;
 }
 
-#start-screen h2 {
+@keyframes flow {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+#start-screen p.blink {
+    animation: blink 0.5s infinite;
+}
+
+/* SELECTION SCREEN */
+#selection-screen {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, #001 0%, #000 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 21;
+}
+
+#selection-title {
+    font-family: var(--font-heading);
+    color: var(--br-yellow);
+    margin-bottom: 40px;
     font-size: 24px;
-    color: white;
-    margin-bottom: 50px;
 }
 
-#start-screen p {
-    animation: blink 0.8s infinite;
+.character-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
 }
 
-.controls-hint {
-    margin-top: 60px;
-    font-size: 12px;
-    color: #ddd;
-    line-height: 1.8;
+.char-card {
+    width: 200px;
+    height: 250px;
+    border: 4px solid #444;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.char-card img {
+    width: 150px; 
+    height: 150px;
+    object-fit: contain;
+    filter: grayscale(1);
+    opacity: 0.5;
+}
+
+.char-card span {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.char-card.active {
+    border-color: var(--br-yellow);
+    transform: scale(1.1);
+    box-shadow: 0 0 30px var(--br-yellow);
+}
+
+.char-card.active img {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
+.char-card.p1-selected { border-color: var(--br-blue); border-width: 6px; }
+.char-card.p2-selected { border-color: var(--br-green); border-width: 6px; }
+
+.selection-controls {
+    margin-top: 40px;
+    font-size: 10px;
+    color: #666;
 }
 
 @keyframes blink {

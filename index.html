@@ -35,14 +35,35 @@
         <div id="status-display"></div>
         
         <div id="start-screen">
-            <h1>MEME FIGHTER</h1>
+            <h1 class="glitter-text">MEME FIGHTER</h1>
             <h2>BRAZIL EDITION</h2>
-            <p>Pressione ESPAÇO para Iniciar</p>
-            <div class="controls-hint">
-                <div>P1: WASD + F (Soco) / G (ESPECIAL)</div>
-                <div>P2: Setas + J (Soco) / K (ESPECIAL)</div>
-            </div>
+            <p class="blink">Pressione ESPAÇO para Iniciar</p>
         </div>
+
+        <div id="selection-screen" style="display: none;">
+            <h2 id="selection-title">SELECIONE SEU LUTADOR (P1)</h2>
+            <div class="character-grid">
+                <div class="char-card active" data-char="CANARINHO">
+                    <img src="./assets/characters/canarinho.png" alt="Canarinho">
+                    <span>CANARINHO</span>
+                </div>
+                <div class="char-card" data-char="CAPIVARA">
+                    <img src="./assets/characters/capivara.png" alt="Capivara">
+                    <span>CAPIVARA</span>
+                </div>
+                <div class="char-card" data-char="GALO">
+                    <img src="./assets/characters/galo.png" alt="Galo Cego">
+                    <span>GALO CEGO</span>
+                </div>
+                <div class="char-card" data-char="NEGOBAM">
+                    <img src="./assets/characters/negobam.png" alt="Nego Bam">
+                    <span>NECO BAM</span>
+                </div>
+            </div>
+            <div class="selection-controls">Use as setas para mover | ESPAÇO para confirmar</div>
+        </div>
+
+        <canvas id="game-canvas"></canvas>
     </div>
     <script src="main.js"></script>
 </body>
