@@ -77,6 +77,37 @@ canvas {
     transition: width 0.3s ease-out;
 }
 
+.special-bar-container {
+    height: 12px;
+    width: 70%;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #555;
+    margin-top: 5px;
+}
+
+.player-2 .special-bar-container {
+    margin-left: auto;
+}
+
+.special-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #00aaff, #0044ff);
+    box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+    transition: width 0.2s;
+}
+
+.special-bar.full {
+    background: #fff;
+    box-shadow: 0 0 15px #fff, 0 0 30px #00aaff;
+    animation: specialReady 0.5s infinite;
+}
+
+@keyframes specialReady {
+    0%, 100% { opacity: 1; transform: scaleY(1); }
+    50% { opacity: 0.7; transform: scaleY(1.2); }
+}
+
 .character-name {
     margin-top: 5px;
     font-size: 14px;
@@ -87,16 +118,43 @@ canvas {
     align-items: flex-end;
 }
 
-#timer {
-    text-align: center;
-    font-size: 36px;
-    background: rgba(0,0,0,0.8);
-    border: 3px solid var(--br-yellow);
+#timer-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-heading);
-    color: var(--br-yellow);
+}
+
+#timer {
+    font-size: 40px;
+    background: rgba(0,0,0,0.8);
+    border: 3px solid var(--br-yellow);
+    padding: 10px 20px;
+}
+
+.rounds-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.player-2 .rounds-container {
+    justify-content: flex-end;
+}
+
+.round-gem {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #333;
+    border: 2px solid #555;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+
+.round-gem.won {
+    background: gold;
+    box-shadow: 0 0 10px gold;
+    border-color: #fff;
 }
 
 #start-screen {

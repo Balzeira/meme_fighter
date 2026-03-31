@@ -14,31 +14,31 @@ background.src = './assets/backgrounds/rio.png';
 const CHARACTERS = {
     CANARINHO: {
         name: 'CANARINHO PISTOLA',
-        speed: 6, jump: -20, damage: 12, specialDamage: 25,
+        speed: 6, jump: -20, damage: 6, specialDamage: 20,
         sheet: './assets/characters/canarinho_sheet.png',
         frames: { idle: 3, punch: 3, kick: 4, special: 2 },
-        attackBox: { offset: { x: 50, y: 50 }, width: 100, height: 50 }
+        attackBox: { offset: { x: 40, y: 30 }, width: 80, height: 40 }
     },
     CAPIVARA: {
         name: 'EDILSON CAPIVARA',
-        speed: 8, jump: -17, damage: 20, specialDamage: 35,
+        speed: 8, jump: -17, damage: 10, specialDamage: 30,
         sheet: './assets/characters/capivara_sheet.png',
         frames: { idle: 3, punch: 3, kick: 3, special: 2 },
-        attackBox: { offset: { x: 50, y: 20 }, width: 150, height: 80 }
+        attackBox: { offset: { x: 40, y: 15 }, width: 100, height: 60 }
     },
     GALO: {
         name: 'GALO CEGO',
-        speed: 10, jump: -23, damage: 10, specialDamage: 18,
+        speed: 10, jump: -23, damage: 5, specialDamage: 15,
         sheet: './assets/characters/galo_sheet.png',
         frames: { idle: 4, punch: 5, kick: 5, special: 4 },
-        attackBox: { offset: { x: 80, y: 50 }, width: 120, height: 40 }
+        attackBox: { offset: { x: 60, y: 30 }, width: 80, height: 30 }
     },
     NEGOBAM: {
         name: 'NEGO BAM',
-        speed: 8, jump: -20, damage: 20, specialDamage: 30,
+        speed: 8, jump: -20, damage: 10, specialDamage: 25,
         sheet: './assets/characters/negobam_sheet.png',
         frames: { idle: 4, punch: 5, kick: 5, special: 5 },
-        attackBox: { offset: { x: 60, y: 50 }, width: 130, height: 60 }
+        attackBox: { offset: { x: 50, y: 35 }, width: 100, height: 45 }
     }
 };
 
@@ -57,11 +57,6 @@ class Sprite {
 
     draw() {
         if (!this.image.complete) return;
-        
-        // Calculando o tamanho de cada quadro na sheet (baseado em grades de 500px por exemplo)
-        const frameWidth = this.image.width / 5; // Assumindo max 5 colunas
-        const frameHeight = this.image.height / 4; // 4 Linhas: Idle, Punch, Kick, Special
-
         c.drawImage(
             this.image,
             this.framesCurrent * (this.image.width / 5),
@@ -70,32 +65,30 @@ class Sprite {
             this.image.height / 4,
             this.position.x - this.offset.x,
             this.position.y - this.offset.y,
-            300, 300 // Tamanho no jogo
+            220, 220
         );
     }
 
     animateFrames() {
         this.framesElapsed++;
         if (this.framesElapsed % this.framesHold === 0) {
-            if (this.framesCurrent < this.framesMax - 1) {
-                this.framesCurrent++;
-            } else {
-                this.framesCurrent = 0;
-            }
+            if (this.framesCurrent < this.framesMax - 1) this.framesCurrent++;
+            else this.framesCurrent = 0;
         }
     }
 }
 
 class Fighter extends Sprite {
-    constructor({ position, velocity, characterData, isFlipped = false }) {
-        super({ position, imageSrc: characterData.sheet, framesMax: characterData.frames.idle, offset: { x: 120, y: 120 } });
+    constructor({ position, velocity, characterData, isFlipped = false, id }) {
+        super({ position, imageSrc: characterData.sheet, framesMax: characterData.frames.idle, offset: { x: 80, y: 80 } });
+        this.id = id;
         this.charData = characterData;
         this.velocity = velocity;
-        this.width = 60; this.height = 150;
-        this.health = 100; this.isFlipped = isFlipped;
+        this.width = 60; this.height = 140;
+        this.health = 100; this.specialMeter = 0;
+        this.isFlipped = isFlipped;
         this.attackBox = { position: { x: 0, y: 0 }, ...this.charData.attackBox };
-        this.dead = false; this.specialCooldown = 0;
-        this.state = 'idle';
+        this.dead = false; this.state = 'idle';
     }
 
     switchSprite(state) {
@@ -122,11 +115,7 @@ class Fighter extends Sprite {
         c.restore();
 
         if (this.dead) return;
-        
-        // Reset state to idle if animation finishes and it's an action
-        if (this.state !== 'idle' && this.framesCurrent === this.framesMax - 1) {
-            this.switchSprite('idle');
-        }
+        if (this.state !== 'idle' && this.framesCurrent === this.framesMax - 1) this.switchSprite('idle');
 
         this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
         this.attackBox.position.y = this.position.y + this.attackBox.offset.y;
@@ -136,8 +125,11 @@ class Fighter extends Sprite {
         this.position.y += this.velocity.y;
 
         if (this.position.y + this.height + this.velocity.y >= canvas.height - 96) {
-            this.velocity.y = 0; this.position.y = 330;
+            this.velocity.y = 0; this.position.y = canvas.height - 96 - this.height;
         } else this.velocity.y += gravity;
+
+        if (this.position.x < 0) this.position.x = 0;
+        if (this.position.x + this.width > canvas.width) this.position.x = canvas.width - this.width;
     }
 
     attack(type = 'punch') {
@@ -146,35 +138,131 @@ class Fighter extends Sprite {
         setTimeout(() => this.isAttacking = false, 300);
     }
 
+    chargeMeter(amount) {
+        this.specialMeter = Math.min(100, this.specialMeter + amount);
+        const bar = document.querySelector(`#${this.id}-special`);
+        bar.style.width = this.specialMeter + '%';
+        bar.classList.toggle('full', this.specialMeter >= 100);
+    }
+
     specialAttack() {
-        if (this.specialCooldown > 0) return;
+        if (this.specialMeter < 100) return;
+        this.specialMeter = 0; this.chargeMeter(0);
         this.isSpecialAttacking = true;
-        this.specialCooldown = 150;
         this.switchSprite('special');
         if (this.charData.name === 'CANARINHO PISTOLA' || this.charData.name === 'NEGO BAM') {
-            this.velocity.x = (this.isFlipped ? -25 : 25);
+            this.velocity.x = (this.isFlipped ? -30 : 30);
         }
         setTimeout(() => this.isSpecialAttacking = false, 500);
     }
 
     takeHit(dmg) {
         this.health -= dmg;
+        this.chargeMeter(10);
         if (this.health <= 0) { this.health = 0; this.dead = true; }
     }
 }
 
 let player, enemy;
+let p1Rounds = 0;
+let p2Rounds = 0;
+let matchOver = false;
+let currentRound = 1;
+
+function announce(text, color = 'gold', duration = 2000) {
+    const display = document.querySelector('#status-display');
+    display.innerText = text;
+    display.style.color = color;
+    display.style.display = 'block';
+    setTimeout(() => display.style.display = 'none', duration);
+}
+
+function resetRound() {
+    timer = 99;
+    player.health = 100;
+    enemy.health = 100;
+    player.dead = false;
+    enemy.dead = false;
+    player.position = { x: 100, y: 0 };
+    enemy.position = { x: 800, y: 0 };
+    player.specialMeter = 0;
+    enemy.specialMeter = 0;
+    player.chargeMeter(0);
+    enemy.chargeMeter(0);
+    document.querySelector('#p1-health').style.width = '100%';
+    document.querySelector('#p2-health').style.width = '100%';
+    
+    announce(`ROUND ${currentRound}`, 'white', 1500);
+    setTimeout(() => announce('FIGHT!', '#f00', 800), 1500);
+}
+
+function updateRoundUI() {
+    const p1Gems = document.querySelectorAll('#p1-rounds .round-gem');
+    for(let i=0; i<p1Rounds; i++) p1Gems[i].classList.add('won');
+    
+    const p2Gems = document.querySelectorAll('#p2-rounds .round-gem');
+    for(let i=0; i<p2Rounds; i++) p2Gems[i].classList.add('won');
+}
+
+function checkRoundEnd() {
+    if (matchOver) return;
+    
+    if (player.health <= 0 || enemy.health <= 0 || timer <= 0) {
+        let winner = null;
+        if (player.health > enemy.health) { winner = 'player'; p1Rounds++; }
+        else if (enemy.health > player.health) { winner = 'enemy'; p2Rounds++; }
+        
+        updateRoundUI();
+        
+        if (p1Rounds === 2) {
+            announce('P1 WINS MATCH!', 'gold', 5000);
+            matchOver = true;
+        } else if (p2Rounds === 2) {
+            announce('P2 WINS MATCH!', 'gold', 5000);
+            matchOver = true;
+        } else {
+            currentRound++;
+            setTimeout(resetRound, 3000);
+            announce(winner === 'player' ? 'P1 WINS ROUND' : 'P2 WINS ROUND', 'white', 2500);
+        }
+    }
+}
+
+// Selection Logic
 let selectedIndex = 0;
 const charKeys = Object.keys(CHARACTERS);
 const cards = document.querySelectorAll('.char-card');
+
+function selectCharacter(index) {
+    if (selectingPhase === 'STARTED') return;
+    const char = CHARACTERS[charKeys[index]];
+    if (selectingPhase === 'P1') {
+        player = new Fighter({ position: { x: 100, y: 0 }, velocity: { x: 0, y: 0 }, characterData: char, id: 'p1' });
+        document.querySelector('#selection-title').innerText = 'SELECIONE P2';
+        document.querySelectorAll('.character-name')[0].innerText = char.name;
+        cards[index].classList.add('p1-selected');
+        selectingPhase = 'P2';
+    } else {
+        enemy = new Fighter({ position: { x: 800, y: 0 }, velocity: { x: 0, y: 0 }, characterData: char, isFlipped: true, id: 'p2' });
+        document.querySelectorAll('.character-name')[1].innerText = char.name;
+        cards[index].classList.add('p2-selected');
+        selectingPhase = 'STARTED';
+        setTimeout(startGame, 1000);
+    }
+}
 
 function updateSelectionUI() {
     cards.forEach((card, i) => card.classList.toggle('active', i === selectedIndex));
 }
 
+cards.forEach((card, i) => {
+    card.addEventListener('click', () => { selectedIndex = i; updateSelectionUI(); selectCharacter(i); });
+});
+
 function startGame() {
     gameStarted = true;
     document.querySelector('#selection-screen').style.display = 'none';
+    resetRound();
     decreaseTimer();
     animate();
 }
@@ -182,7 +270,7 @@ function startGame() {
 let timer = 99;
 let timerId;
 function decreaseTimer() {
-    if (timer > 0) {
+    if (timer > 0 && !matchOver) {
         timerId = setTimeout(decreaseTimer, 1000);
         timer--;
         document.querySelector('#timer').innerText = timer;
@@ -202,22 +290,29 @@ function animate() {
     player.velocity.x = 0;
     enemy.velocity.x = 0;
 
-    if (keys.a.pressed) player.velocity.x = -player.charData.speed;
-    if (keys.d.pressed) player.velocity.x = player.charData.speed;
-    if (keys.ArrowLeft.pressed) enemy.velocity.x = -enemy.charData.speed;
-    if (keys.ArrowRight.pressed) enemy.velocity.x = enemy.charData.speed;
+    if (!matchOver && (player.health > 0 && enemy.health > 0)) {
+        if (keys.a.pressed) player.velocity.x = -player.charData.speed;
+        if (keys.d.pressed) player.velocity.x = player.charData.speed;
+        if (keys.ArrowLeft.pressed) enemy.velocity.x = -enemy.charData.speed;
+        if (keys.ArrowRight.pressed) enemy.velocity.x = enemy.charData.speed;
+    }
 
-    // Collisions
     if (player.isAttacking && rectangularCollision(player, enemy)) {
         enemy.takeHit(player.charData.damage);
+        player.chargeMeter(5);
         document.querySelector('#p2-health').style.width = enemy.health + '%';
         player.isAttacking = false;
+        checkRoundEnd();
     }
     if (enemy.isAttacking && rectangularCollision(enemy, player)) {
         player.takeHit(enemy.charData.damage);
+        enemy.chargeMeter(5);
         document.querySelector('#p1-health').style.width = player.health + '%';
         enemy.isAttacking = false;
+        checkRoundEnd();
     }
+    
+    if (timer <= 0) checkRoundEnd();
 }
 
 function rectangularCollision(f1, f2) {
@@ -242,23 +337,12 @@ window.addEventListener('keydown', (e) => {
         if (selectingPhase !== 'STARTED') {
             if (e.key === 'ArrowRight') { selectedIndex = (selectedIndex + 1) % charKeys.length; updateSelectionUI(); }
             if (e.key === 'ArrowLeft') { selectedIndex = (selectedIndex - 1 + charKeys.length) % charKeys.length; updateSelectionUI(); }
-            if (e.code === 'Space') {
-                const char = CHARACTERS[charKeys[selectedIndex]];
-                if (selectingPhase === 'P1') {
-                    player = new Fighter({ position: { x: 100, y: 0 }, velocity: { x: 0, y: 0 }, characterData: char });
-                    document.querySelector('#selection-title').innerText = 'SELECIONE P2';
-                    cards[selectedIndex].classList.add('p1-selected');
-                    selectingPhase = 'P2';
-                } else {
-                    enemy = new Fighter({ position: { x: 800, y: 0 }, velocity: { x: 0, y: 0 }, characterData: char, isFlipped: true });
-                    cards[selectedIndex].classList.add('p2-selected');
-                    selectingPhase = 'STARTED';
-                    setTimeout(startGame, 500);
-                }
-            }
+            if (e.code === 'Space') selectCharacter(selectedIndex);
         }
         return;
     }
+
+    if (matchOver) return;
 
     switch (e.key) {
         case 'd': keys.d.pressed = true; break;
